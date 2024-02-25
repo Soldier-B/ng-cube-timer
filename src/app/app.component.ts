@@ -246,8 +246,9 @@ export class AppComponent {
         while (scramble.length < this.scrambleLength) {
             const cur = dir[(Math.random() * 6) | 0];
             if (cur == prv) continue;
-            const prime = Math.random() < 0.5;
-            scramble.push(`${cur}${prime ? "'" : ""}`);
+            const double = Math.random() < 0.3;
+            const prime = double ? false : Math.random() < 0.5;
+            scramble.push(`${cur}${double ? 2 : ''}${prime ? "'" : ""}`);
             prv = cur;
         }
 
