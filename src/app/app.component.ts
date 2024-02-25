@@ -82,7 +82,6 @@ export class AppComponent {
         this.body.onpointerdown = this.body.onpointerup = (e) => {
             if ((e.target as HTMLElement).tagName === 'BUTTON') return;
 
-            console.log(e);
             let handled = true;
 
             if (e.type === 'pointerdown' && this.pointer === undefined) {
@@ -287,7 +286,6 @@ export class AppComponent {
     }
 
     get hasMoreTimes(): boolean {
-        console.log(this.times.length, this.last.length);
         return this.times.length > this.last.length;
     }
 }
