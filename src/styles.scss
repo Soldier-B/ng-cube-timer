@@ -1,1 +1,189 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+
+:root {
+	--dark-bg: #212529;
+	--dark-fg: #dee2e6;
+	--light-bg: #dee2e6;
+	--light-fg: #212529;
+	--staging: #dc3545;
+	--staged: #198754;
+}
+
+
+@media(prefers-color-scheme:dark) {
+	body {
+		background: var(--dark-bg);
+		color: var(--dark-fg);
+	}
+
+	.timelist.more:before{
+		background: linear-gradient(var(--dark-bg), transparent);
+	}
+}
+
+@media (prefers-color-scheme: light) {
+	body {
+		background: var(--light-bg);
+		color: var(--light-fg);
+	}
+
+	.timelist.more:before{
+		background: linear-gradient(var(--light-bg), transparent);
+	}
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	font-family: 'DM Mono', monospace;
+	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
+	touch-action: none;
+
+	&.dark {
+		background: var(--dark-bg);
+		color: var(--dark-fg);
+
+		.timelist.more:before{
+			background: linear-gradient(var(--dark-bg), transparent);
+		}
+	}
+
+	&.light {
+		background: var(--light-bg);
+		color: var(--light-fg);
+
+		.timelist.more:before{
+			background: linear-gradient(var(--light-bg), transparent);
+		}
+	}
+}
+
+svg {
+	fill: currentColor;
+	pointer-events: none;
+}
+
+/*
+@media (pointer: coarse) {
+	svg {
+		width: 48px;
+		height: 48px;
+	}
+}
+*/
+
+header {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 3vmin;
+
+	button {
+		appearance: none;
+		background: none;
+		border: none;
+		color: inherit;
+		opacity: 0.1;
+		cursor: pointer;
+
+		transition: opacity 200ms ease-in-out;
+
+		&[disabled] {
+			opacity: 0.025;
+		}
+
+		&:not([disabled]):hover {
+			opacity: 0.4 !important;
+		}
+
+		&.active {
+			opacity: 1;
+		}
+	}
+}
+
+main {
+	display: flex;
+	align-items: center;
+	font-size: 10vmin;
+}
+
+.display {
+	line-height: 1;
+}
+
+.lights {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	margin-left: 3vmin;
+}
+
+.staging-state,
+.staged-state {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	margin: 4px;
+	opacity: 0.1;
+}
+
+.staging-state {
+	background: var(--staging);
+}
+
+.staged-state {
+	background: var(--staged);
+}
+
+
+.timing .staging-state,
+.timing .staged-state {
+	animation: .1s infinite blink;
+}
+
+.staging .staging-state {
+	opacity: 1;
+}
+
+.staged .staging-state,
+.staged .staged-state {
+	opacity: 1;
+}
+
+@keyframes blink {
+
+	0%,
+	49.9999% {
+		opacity: 1;
+	}
+
+	50%,
+	100% {
+		opacity: 0.1;
+	}
+}
+
+footer {
+	position: absolute;
+	bottom: 0;
+	margin-bottom: 3vmin;
+	font-size: 3vmin;
+	display: flex;
+}
+
+footer div {
+	display: flex;
+	align-items: center;
+}
+
+footer div+div {
+	margin-left: 3vmin;
+}
+
+footer dt {
+	opacity: 0.4;
+	text-transform: uppercase;
+}

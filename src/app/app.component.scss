@@ -1,0 +1,38 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	background: inherit;
+}
+
+.scramble {
+	margin-top: 3vmin;
+	max-width: 80vw;
+	font-size: 3vmin;
+	opacity: 0.4;
+	text-transform: uppercase;
+}
+
+.timelist {
+	position: absolute;
+	top: 3vmin;
+	left: 3vmin;
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	&.more:before {
+		content: '';
+		display: block;
+		position: absolute;
+		top: 0;
+		right: 0;
+		height: 3vmin;
+		left: 0;
+	}
+}
