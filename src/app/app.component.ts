@@ -1,6 +1,8 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { TimerService } from './serivces/timer.service';
+import { ConfirmComponent } from './components/confirm/confirm.component';
 import { StopwatchPipe } from './pipes/stopwatch.pipe';
+
 
 enum TimerState {
     Waiting = 'waiting',
@@ -10,14 +12,12 @@ enum TimerState {
     Timed = 'timed'
 }
 
-const NoTime = '---------';
-
 type Theme = 'auto' | 'light' | 'dark';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [StopwatchPipe],
+    imports: [ConfirmComponent, StopwatchPipe],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
@@ -47,6 +47,8 @@ export class AppComponent {
     db?: IDBDatabase;
 
     body: HTMLElement = document.body;
+
+    @ViewChild(ConfirmComponent) deleteConfirm!: ConfirmComponent;
 
     constructor(private timerSvc: TimerService) {
         // load settings from local db or localstorage
@@ -274,11 +276,11 @@ export class AppComponent {
         event.stopImmediatePropagation();
         (event.target as HTMLElement).blur();
 
-        if (confirm("Are you sure you want to clear all previous times?")) {
+        this.deleteConfirm.show().then(() => {
             this.solvingTime = 0;
             this.times.length = 0;
             this.updateStats();
-        }
+        })
     }
 
     averageOf(times: number) {
@@ -287,5 +289,10 @@ export class AppComponent {
 
     get hasMoreTimes(): boolean {
         return this.times.length > this.last.length;
+    }
+
+    get confirmShown(): boolean {
+        if (this.deleteConfirm === undefined) return false;
+        return this.deleteConfirm.shown;
     }
 }

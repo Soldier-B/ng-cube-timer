@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
 
 :root {
+	--black: #212529;
+	--white: #dee2e6;
+	--gray: #6c757d;
+	--red: #dc3545;
+	--green: #198754;
+
 	--dark-bg: #212529;
 	--dark-fg: #dee2e6;
 	--light-bg: #dee2e6;
@@ -12,23 +18,31 @@
 
 @media(prefers-color-scheme:dark) {
 	body {
-		background: var(--dark-bg);
-		color: var(--dark-fg);
+		background: var(--black);
+		color: var(--white);
 	}
 
-	.timelist.more:before{
-		background: linear-gradient(var(--dark-bg), transparent);
+	.dialog {
+		background: var(--black);
+	}
+
+	.timelist.more:before {
+		background: linear-gradient(var(--black), transparent);
 	}
 }
 
 @media (prefers-color-scheme: light) {
 	body {
-		background: var(--light-bg);
-		color: var(--light-fg);
+		background: var(--white);
+		color: var(--black);
 	}
 
-	.timelist.more:before{
-		background: linear-gradient(var(--light-bg), transparent);
+	.dialog {
+		background: var(--white);
+	}
+
+	.timelist.more:before {
+		background: linear-gradient(var(--white), transparent);
 	}
 }
 
@@ -42,20 +56,28 @@ body {
 	touch-action: none;
 
 	&.dark {
-		background: var(--dark-bg);
-		color: var(--dark-fg);
+		background: var(--black);
+		color: var(--white);
 
-		.timelist.more:before{
-			background: linear-gradient(var(--dark-bg), transparent);
+		.dialog {
+			background: var(--black);
+		}
+
+		.timelist.more:before {
+			background: linear-gradient(var(--black), transparent);
 		}
 	}
 
 	&.light {
-		background: var(--light-bg);
-		color: var(--light-fg);
+		background: var(--white);
+		color: var(--black);
 
-		.timelist.more:before{
-			background: linear-gradient(var(--light-bg), transparent);
+		.dialog {
+			background: var(--white);
+		}
+
+		.timelist.more:before {
+			background: linear-gradient(var(--white), transparent);
 		}
 	}
 }
