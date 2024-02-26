@@ -320,9 +320,7 @@ export class AppComponent {
         try {
             this.wakelock = await navigator.wakeLock.request('screen');
         }
-        catch (e) {
-            console.log(e);
-        }
+        catch { }
     }
 
     async releaseWakeLock() {
