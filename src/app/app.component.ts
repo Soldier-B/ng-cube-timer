@@ -44,7 +44,8 @@ export class AppComponent {
     times: number[] = [];
     last: number[] = [];
     pointer?: number;
-    db?: IDBDatabase;
+    supportsWakelock: boolean = false;
+    wakelock?: WakeLockSentinel;
 
     body: HTMLElement = document.body;
 
@@ -57,6 +58,10 @@ export class AppComponent {
         this.hideWhileTiming = this.load<boolean>('hid', false);
         this.showTimes = this.load<boolean>('shw', false);
         this.times = this.load<Array<number>>('tim', []);
+
+        // detect wakelock support
+        this.intializeWakeLock();
+
         this.init();
     }
 
@@ -217,6 +222,7 @@ export class AppComponent {
 
             case TimerState.Staged:
                 if (!this.pressed) {
+                    this.requestWakeLock();
                     this.timerSvc.restart();
                     this.state = TimerState.Timing;
                 }
@@ -227,6 +233,7 @@ export class AppComponent {
                     this.timerSvc.stop();
                     this.generateScramble();
                     this.updateStats(this.solvingTime);
+                    this.releaseWakeLock();
                     this.state = TimerState.Timed;
                 }
                 break;
@@ -295,4 +302,33 @@ export class AppComponent {
         if (this.deleteConfirm === undefined) return false;
         return this.deleteConfirm.shown;
     }
+
+    intializeWakeLock() {
+        this.supportsWakelock = ('wakeLock' in navigator);
+
+        if (this.supportsWakelock) {
+            document.addEventListener('visibilitychange', async () => {
+                if (this.wakelock !== undefined && document.visibilityState === 'visible')
+                    this.requestWakeLock();
+            });
+        }
+    }
+
+    async requestWakeLock() {
+        if (!this.supportsWakelock) return;
+
+        try {
+            this.wakelock = await navigator.wakeLock.request('screen');
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    async releaseWakeLock() {
+        if (!this.supportsWakelock || this.wakelock === undefined) return;
+        await this.wakelock.release();
+        this.wakelock = undefined;
+    }
+
 }
