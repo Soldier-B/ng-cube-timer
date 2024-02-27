@@ -1,0 +1,49 @@
+<div class="grid">
+	<label>
+		scramble
+	</label>
+
+	<div>
+		<label class="range">
+			{{scrambleLength | fixedlen }}
+			<input type="range" min="5" max="50" value="25" [(ngModel)]="scrambleLength" />
+		</label>
+	</div>
+
+	<label>theme</label>
+	<div>
+		<label class="check" for="theme-auto">
+			<input type="radio" name="theme" value="auto" id="theme-auto" [(ngModel)]="theme" />
+			auto
+		</label>
+
+		<label class="check" for="theme-dark">
+			<input type="radio" name="theme" value="dark" id="theme-dark" [(ngModel)]="theme" />
+			dark
+		</label>
+		<label class="check" for="theme-light">
+			<input type="radio" name="theme" value="light" id="theme-light" [(ngModel)]="theme" />
+			light
+		</label>
+	</div>
+
+	<label></label>
+	<div>
+		<label class="check">
+			<input type="checkbox" [(ngModel)]="hideWhileTiming" />
+			hide timer while timing
+		</label>
+	</div>
+
+	<label></label>
+
+	<div>
+		<label class="check">
+			<input type="checkbox" [(ngModel)]="showPreviousTimes" />
+			show previous time list
+		</label>
+	</div>
+
+
+
+</div>
