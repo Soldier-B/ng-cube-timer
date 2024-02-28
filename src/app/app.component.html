@@ -1,38 +1,19 @@
 <header>
+    <button title="Clear all previous times" tabindex="-1" (click)="clearDialog.show()"
+        [disabled]="state === TimerState.Timing || times.length === 0">
+        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
+            <use href="assets/icons.svg#delete"></use>
+        </svg>
+    </button>
+    <button title="Show settings" tabindex="-1" (click)="settingsDialog.show()">
+        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
+            <use href="assets/icons.svg#settings"></use>
+        </svg>
+    </button>
     <button title="Toggle fullscreen" tabindex="-1" (click)="toggleFullscreen($event)" [class.active]="fullscreen">
         <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
             <use [attr.href]="'assets/icons.svg#fullscreen_' + (fullscreen ? 'off' : 'on')"
                 href="assets/icons.svg#fullscreen_on"></use>
-        </svg>
-    </button>
-    <button title="Toggle light theme" tabindex="-1" (click)="setTheme($event)" data-theme="light"
-        [class.active]="theme==='light'">
-        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
-            <use href="assets/icons.svg#theme_light"></use>
-        </svg>
-    </button>
-    <button title="Toggle dark theme" tabindex="-1" (click)="setTheme($event)" data-theme="dark"
-        [class.active]="theme==='dark'">
-        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
-            <use href="assets/icons.svg#theme_dark"></use>
-        </svg>
-    </button>
-    <button title="Toggle timer display while timing" tabindex="-1" (click)="toggleHideTimer($event)"
-        [class.active]="!hideWhileTiming">
-        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
-            <use [attr.href]="'assets/icons.svg#timer_' + (hideWhileTiming ? 'off' : 'on')"></use>
-        </svg>
-    </button>
-    <button title="Toggle previous time list" tabindex="-1" (click)="togglePreviousTimes($event)"
-        [class.active]="showTimes">
-        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
-            <use href="assets/icons.svg#list"></use>
-        </svg>
-    </button>
-    <button title="Clear all previous times" tabindex="-1" (click)="resetStats($event)"
-        [disabled]="state === TimerState.Timing || times.length === 0">
-        <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
-            <use href="assets/icons.svg#delete"></use>
         </svg>
     </button>
 </header>
@@ -72,4 +53,22 @@
     </div>
 </footer>
 
-<app-confirm [class.shown]="confirmShown"></app-confirm>
+<app-dialog #clearDialog (onAction)="handleAction($event)">
+    <ng-template #dialogContent>
+        Are you sure you want to clear all previous times?
+    </ng-template>
+    <ng-template #dialogButtons>
+        <button data-action="clear">clear</button>
+        <button data-action="cancel">cancel</button>
+    </ng-template>
+</app-dialog>
+
+<app-dialog #settingsDialog (onShow)="showSettings()" (onAction)="handleAction($event)">
+    <ng-template #dialogContent>
+        <app-settings></app-settings>
+    </ng-template>
+    <ng-template #dialogButtons>
+        <button data-action="save">save</button>
+        <button data-action="cancel">cancel</button>
+    </ng-template>
+</app-dialog>

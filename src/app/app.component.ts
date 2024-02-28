@@ -1,8 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, SimpleChanges, ViewChild } from '@angular/core';
 import { TimerService } from './serivces/timer.service';
-import { ConfirmComponent } from './components/confirm/confirm.component';
 import { StopwatchPipe } from './pipes/stopwatch.pipe';
-
+import { DialogComponent } from './components/dialog/dialog.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { ISettings } from './components/settings/settings.component';
 
 enum TimerState {
     Waiting = 'waiting',
@@ -12,18 +13,21 @@ enum TimerState {
     Timed = 'timed'
 }
 
-type Theme = 'auto' | 'light' | 'dark';
+export type Theme = 'auto' | 'light' | 'dark';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [ConfirmComponent, StopwatchPipe],
+    imports: [StopwatchPipe, DialogComponent, SettingsComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
 export class AppComponent {
     // make enum available in template
     readonly TimerState: typeof TimerState = TimerState;
+
+    //
+    @ViewChild(SettingsComponent) settings!: SettingsComponent;
 
     // settings
     theme: Theme = 'auto';
@@ -48,8 +52,6 @@ export class AppComponent {
     wakelock?: WakeLockSentinel;
 
     body: HTMLElement = document.body;
-
-    @ViewChild(ConfirmComponent) deleteConfirm!: ConfirmComponent;
 
     constructor(private timerSvc: TimerService) {
         // load settings from local db or localstorage
@@ -145,38 +147,6 @@ export class AppComponent {
         localStorage.setItem(`cubetimer.${key}`, JSON.stringify(value));
     }
 
-    setTheme(event: MouseEvent) {
-        const theme: Theme = (event.target as HTMLElement).getAttribute('data-theme') as Theme;
-
-        // stop event propagation and prevent element from being selected afterwards
-        event.stopImmediatePropagation();
-        (event.target as HTMLElement).blur();
-
-        if (theme == this.theme) {
-            this.body.classList.remove(theme);
-            this.theme = 'auto';
-        }
-        else {
-            const opposite: Theme = theme === 'dark' ? 'light' : 'dark';
-            this.body.classList.add(theme);
-            this.body.classList.remove(opposite);
-            this.theme = theme;
-        }
-
-        // todo: store theme change
-        this.save<Theme>('thm', this.theme);
-    }
-
-    toggleHideTimer(event: MouseEvent) {
-        // stop event propagation and prevent element from being selected afterwards
-        event.stopImmediatePropagation();
-        (event.target as HTMLElement).blur();
-
-        this.hideWhileTiming = !this.hideWhileTiming;
-
-        // todo: store setting change
-        this.save<boolean>('hid', this.hideWhileTiming);
-    }
 
     toggleFullscreen(event: MouseEvent) {
         // stop event propagation and prevent element from being selected afterwards
@@ -187,17 +157,6 @@ export class AppComponent {
             document.exitFullscreen();
         else
             this.body.requestFullscreen();
-    }
-
-    togglePreviousTimes(event: MouseEvent) {
-        // stop event propagation and prevent element from being selected afterwards
-        event.stopImmediatePropagation();
-        (event.target as HTMLElement).blur();
-
-        this.showTimes = !this.showTimes;
-
-        // todo: store setting change
-        this.save<boolean>('shw', this.showTimes);
     }
 
     setPressed(pressed: boolean) {
@@ -278,16 +237,10 @@ export class AppComponent {
         this.last = this.times.slice(-10);
     }
 
-    resetStats(event: MouseEvent) {
-        // stop event propagation and prevent element from being selected afterwards
-        event.stopImmediatePropagation();
-        (event.target as HTMLElement).blur();
-
-        this.deleteConfirm.show().then(() => {
-            this.solvingTime = 0;
-            this.times.length = 0;
-            this.updateStats();
-        })
+    clearStats() {
+        this.solvingTime = 0;
+        this.times.length = 0;
+        this.updateStats();
     }
 
     averageOf(times: number) {
@@ -296,11 +249,6 @@ export class AppComponent {
 
     get hasMoreTimes(): boolean {
         return this.times.length > this.last.length;
-    }
-
-    get confirmShown(): boolean {
-        if (this.deleteConfirm === undefined) return false;
-        return this.deleteConfirm.shown;
     }
 
     intializeWakeLock() {
@@ -327,6 +275,66 @@ export class AppComponent {
         if (!this.supportsWakelock || this.wakelock === undefined) return;
         await this.wakelock.release();
         this.wakelock = undefined;
+    }
+
+    showSettings() {
+        this.settings.load({
+            theme: this.theme,
+            scrambleLength: this.scrambleLength,
+            hideWhileTiming: this.hideWhileTiming,
+            showPreviousTimes: this.showTimes
+        });
+    }
+
+    handleAction(action: string) {
+        console.log('handle action', action);
+        switch (action) {
+            case 'delete':
+                this.clearStats();
+                break;
+            case 'save':
+                // todo: get settings, update them and save
+                const settings = this.settings.save();
+
+                this.updateTheme(settings.theme);
+                this.updateScrambleLength(settings.scrambleLength);
+                this.updateHideWhileTiming(settings.hideWhileTiming);
+                this.updateShowPreviousTimes(settings.showPreviousTimes);
+
+                break;
+        }
+    }
+
+    updateTheme(theme: Theme) {
+        if (theme !== this.theme) {
+            this.body.classList.remove(this.theme);
+            this.theme = theme;
+            if (this.theme !== 'auto')
+                this.body.classList.add(this.theme);
+            this.save<Theme>('thm', this.theme);
+        }
+    }
+
+    updateScrambleLength(scrambleLength: number) {
+        if (scrambleLength !== this.scrambleLength) {
+            this.scrambleLength = scrambleLength;
+            this.generateScramble();
+            this.save<number>('sln', this.scrambleLength);
+        }
+    }
+
+    updateHideWhileTiming(hideWhileTiming: boolean) {
+        if (hideWhileTiming !== this.hideWhileTiming) {
+            this.hideWhileTiming = hideWhileTiming;
+            this.save<boolean>('hid', this.hideWhileTiming);
+        }
+    }
+
+    updateShowPreviousTimes(showPreviousTimes: boolean) {
+        if (showPreviousTimes !== this.showTimes) {
+            this.showTimes = showPreviousTimes;
+            this.save<boolean>('shw', this.showTimes);
+        }
     }
 
 }
