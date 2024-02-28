@@ -18,15 +18,15 @@
 }
 
 ::ng-deep {
-
 	.dialog {
+		background: var(--background);
 		display: inline-block;
 		border-radius: .25rem;
 		padding: 1rem;
 		margin-top: 2rem;
 		max-width: 80vw;
 		transform: translateY(calc(-100% - 2rem - 1px));
-		transition: transform 200ms ease-in-out;
+		transition: transform 200ms ease-in-out; /*, background-color 200ms ease-in-out;*/
 
 		.dialog-content {
 			margin: 0 0 1rem;

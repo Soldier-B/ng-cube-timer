@@ -1,12 +1,149 @@
+/* base theme handling */
+@media(prefers-color-scheme:dark) {
+	:root {
+		--background: var(--black);
+		--foreground: var(--white);
+	}
+}
+
+@media(prefers-color-scheme:light) {
+	:root {
+		--background: var(--white);
+		--foreground: var(--black);
+	}
+
+	:host {
+		font-weight: 500;
+	}
+}
+
+:host.light {
+	--background: var(--white);
+	--foreground: var(--black);
+	font-weight: 500;
+}
+
+:host.dark {
+	--background: var(--black);
+	--foreground: var(--white);
+}
+
+/* app component */
 :host {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	background: inherit;
+	background: var(--background);
+	color: var(--foreground);
+
+	&:not(.loading) {
+		/* transition: background-color 200ms ease-in-out, color 200ms ease-in-out; */
+		/* transition: background-color 200ms ease-in-out, color 200ms ease-in-out, border-color 200ms ease-in-out; */
+	}
 }
 
+/* buttons */
+:host>header {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 3vmin;
+
+	button {
+		appearance: none;
+		background: none;
+		border: none;
+		color: inherit;
+		opacity: 0.1;
+		cursor: pointer;
+
+		transition: opacity 200ms ease-in-out;
+
+		&[disabled] {
+			opacity: 0.025;
+		}
+
+		&:not([disabled]):hover {
+			opacity: 0.4 !important;
+		}
+
+		&.active {
+			opacity: 1;
+		}
+
+		svg {
+			fill: currentColor;
+			pointer-events: none;
+		}
+	}
+}
+
+/* timer */
+:host>main {
+	display: flex;
+	align-items: center;
+	font-size: 10vmin;
+
+	.display {
+		line-height: 1;
+	}
+
+	.lights {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
+		margin-left: 3vmin;
+	}
+
+	.staging-state,
+	.staged-state {
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		margin: 4px;
+		opacity: 0.1;
+	}
+
+	.staging-state {
+		background: var(--red);
+	}
+
+	.staged-state {
+		background: var(--green);
+	}
+
+
+	.timing .staging-state,
+	.timing .staged-state {
+		animation: .1s infinite blink;
+	}
+
+	.staging .staging-state {
+		opacity: 1;
+	}
+
+	.staged .staging-state,
+	.staged .staged-state {
+		opacity: 1;
+	}
+}
+
+@keyframes blink {
+
+	0%,
+	49.9999% {
+		opacity: 1;
+	}
+
+	50%,
+	100% {
+		opacity: 0.1;
+	}
+}
+
+/* scramble */
 .scramble {
 	margin-top: 3vmin;
 	max-width: 80vw;
@@ -15,10 +152,12 @@
 	text-transform: uppercase;
 }
 
-.timelist {
+/* time list */
+:host>.timelist {
 	position: absolute;
 	top: 3vmin;
 	left: 3vmin;
+	background-color: transparent;
 
 	ul {
 		margin: 0;
@@ -34,5 +173,29 @@
 		right: 0;
 		height: 3vmin;
 		left: 0;
+		background: linear-gradient(var(--background), transparent);
+	}
+}
+
+/* stats footer */
+:host>footer {
+	position: absolute;
+	bottom: 0;
+	margin-bottom: 3vmin;
+	font-size: 3vmin;
+	display: flex;
+
+	&>div {
+		display: flex;
+		align-items: center;
+	}
+
+	&>div+div {
+		margin-left: 3vmin;
+	}
+
+	& dt {
+		opacity: 0.4;
+		text-transform: uppercase;
 	}
 }
