@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FixedlenPipe } from '../../pipes/fixedlen.pipe';
 import { Theme } from '../../app.component';
@@ -12,9 +12,9 @@ import { Theme } from '../../app.component';
 })
 export class SettingsComponent {
     theme: Theme = 'auto';
-    scrambleLength: number = 25;
+    scrambleLength: number = 20;
     hideWhileTiming: boolean = false;
-    showPreviousTimes: boolean = false;
+    showPreviousTimes: boolean = true;
 
     load(settings: ISettings) {
         this.theme = settings.theme;

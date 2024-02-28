@@ -56,9 +56,9 @@ export class AppComponent {
     constructor(private timerSvc: TimerService) {
         // load settings from local db or localstorage
         this.theme = this.load<Theme>('thm', 'auto');
-        this.scrambleLength = this.load<number>('scr', 25);
+        this.scrambleLength = this.load<number>('scr', 20);
         this.hideWhileTiming = this.load<boolean>('hid', false);
-        this.showTimes = this.load<boolean>('shw', false);
+        this.showTimes = this.load<boolean>('shw', true);
         this.times = this.load<Array<number>>('tim', []);
 
         // detect wakelock support
