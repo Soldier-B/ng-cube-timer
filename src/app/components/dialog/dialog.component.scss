@@ -23,9 +23,9 @@
 		display: inline-block;
 		border-radius: .25rem;
 		padding: 1rem;
-		margin-top: 1rem;
+		margin-top: 2rem;
 		max-width: 80vw;
-		transform: translateY(-125%);
+		transform: translateY(calc(-100% - 2rem - 1px));
 		transition: transform 200ms ease-in-out;
 
 		.dialog-content {
