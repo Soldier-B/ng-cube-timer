@@ -33,7 +33,7 @@ export class AppComponent {
     theme: Theme = 'auto';
     scrambleLength: number = 25;
     hideWhileTiming: boolean = false;
-    showTimes: boolean = false;
+    showPreviousTimes: boolean = false;
 
     // state
     state: TimerState = TimerState.Waiting;
@@ -58,7 +58,7 @@ export class AppComponent {
         this.theme = this.load<Theme>('thm', 'auto');
         this.scrambleLength = this.load<number>('scr', 20);
         this.hideWhileTiming = this.load<boolean>('hid', false);
-        this.showTimes = this.load<boolean>('shw', true);
+        this.showPreviousTimes = this.load<boolean>('shw', true);
         this.times = this.load<Array<number>>('tim', []);
 
         // detect wakelock support
@@ -282,7 +282,7 @@ export class AppComponent {
             theme: this.theme,
             scrambleLength: this.scrambleLength,
             hideWhileTiming: this.hideWhileTiming,
-            showPreviousTimes: this.showTimes
+            showPreviousTimes: this.showPreviousTimes
         });
     }
 
@@ -331,9 +331,9 @@ export class AppComponent {
     }
 
     updateShowPreviousTimes(showPreviousTimes: boolean) {
-        if (showPreviousTimes !== this.showTimes) {
-            this.showTimes = showPreviousTimes;
-            this.save<boolean>('shw', this.showTimes);
+        if (showPreviousTimes !== this.showPreviousTimes) {
+            this.showPreviousTimes = showPreviousTimes;
+            this.save<boolean>('shw', this.showPreviousTimes);
         }
     }
 

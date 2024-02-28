@@ -28,7 +28,7 @@
 
 <aside class="scramble">{{ scramble }}</aside>
 
-@if(showTimes){
+@if(showPreviousTimes){
 <aside class="timelist" [class.more]="hasMoreTimes">
     <ul>
         @for (time of last; track $index) {
