@@ -115,17 +115,17 @@
 	}
 
 
-	.timing .staging-state,
-	.timing .staged-state {
+	&.timing .staging-state,
+	&.timing .staged-state {
 		animation: .1s infinite blink;
 	}
 
-	.staging .staging-state {
+	&.staging .staging-state {
 		opacity: 1;
 	}
 
-	.staged .staging-state,
-	.staged .staged-state {
+	&.staged .staging-state,
+	&.staged .staged-state {
 		opacity: 1;
 	}
 }
