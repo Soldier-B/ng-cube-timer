@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, HostBinding, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { TimerService } from './serivces/timer.service';
 import { StopwatchPipe } from './pipes/stopwatch.pipe';
 import { DialogComponent } from './components/dialog/dialog.component';
@@ -26,11 +26,12 @@ export class AppComponent {
     // make enum available in template
     readonly TimerState: typeof TimerState = TimerState;
 
-    //
+    // child component references
+    @ViewChildren(DialogComponent) dialogs!: QueryList<DialogComponent>;
     @ViewChild(SettingsComponent) settings!: SettingsComponent;
 
     // settings
-    theme: Theme = 'auto';
+    @HostBinding('class') theme: Theme = 'auto';
     scrambleLength: number = 25;
     hideWhileTiming: boolean = false;
     showPreviousTimes: boolean = false;
@@ -72,9 +73,6 @@ export class AppComponent {
     }
 
     init() {
-        if (this.theme != 'auto')
-            this.body.classList.add(this.theme);
-
         // generate initial scramble
         this.generateScramble();
 
@@ -83,6 +81,7 @@ export class AppComponent {
 
         // wire up key handlers
         window.onkeydown = window.onkeyup = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') return this.cancelDialogs();
             if (e.key !== ' ') return;
             this.setPressed(e.type === 'keydown');
             e.preventDefault();
@@ -307,10 +306,7 @@ export class AppComponent {
 
     updateTheme(theme: Theme) {
         if (theme !== this.theme) {
-            this.body.classList.remove(this.theme);
             this.theme = theme;
-            if (this.theme !== 'auto')
-                this.body.classList.add(this.theme);
             this.save<Theme>('thm', this.theme);
         }
     }
@@ -337,4 +333,9 @@ export class AppComponent {
         }
     }
 
+    cancelDialogs() {
+        for (const dialog of this.dialogs) {
+            dialog.hide('cancel');
+        }
+    }
 }

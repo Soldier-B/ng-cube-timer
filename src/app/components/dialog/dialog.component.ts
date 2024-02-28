@@ -32,6 +32,7 @@ export class DialogComponent {
     }
 
     hide(action?: string) {
+        if (!this.shown) return;
         this.shown = false;
         if (action !== undefined) this.onAction.emit(action);
     }
