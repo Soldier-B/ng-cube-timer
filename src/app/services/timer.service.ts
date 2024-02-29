@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { EventEmitter, Injectable } from '@angular/core';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +9,7 @@ export class TimerService {
     private _elapsed: number = 0;
     private _tickFn: () => void;
 
-    elapsedChanged: Subject<number> = new Subject<number>();
+    elapsedChanged = new EventEmitter<number>();
 
     constructor() {
         this._tickFn = this.tick.bind(this);
@@ -40,7 +39,7 @@ export class TimerService {
     private setElapsed(elapsed: number) {
         if (elapsed === 0) this._timer = performance.now();
         this._elapsed = elapsed;
-        this.elapsedChanged.next(elapsed);
+        this.elapsedChanged.emit(elapsed);
     }
 
     get elapsed(): number {

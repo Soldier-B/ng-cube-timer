@@ -1,9 +1,10 @@
 import { Component, HostBinding, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
-import { TimerService } from './serivces/timer.service';
+import { TimerService } from './services/timer.service';
 import { StopwatchPipe } from './pipes/stopwatch.pipe';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { SettingsComponent } from './components/settings/settings.component';
-import { ISettings } from './components/settings/settings.component';
+import { ScrambleService } from './services/scramble.service';
+import { WakeLockService } from './services/wake-lock.service';
 
 enum TimerState {
     Waiting = 'waiting',
@@ -11,6 +12,16 @@ enum TimerState {
     Staged = 'staged',
     Timing = 'timing',
     Timed = 'timed'
+}
+
+enum MoveType {
+    Normal,
+    Prime,
+    Double
+}
+
+function randomInt(n: number): number {
+    return (Math.random() * n) | 0;
 }
 
 export type Theme = 'auto' | 'light' | 'dark';
@@ -49,21 +60,16 @@ export class AppComponent {
     times: number[] = [];
     last: number[] = [];
     pointer?: number;
-    supportsWakelock: boolean = false;
-    wakelock?: WakeLockSentinel;
 
     body: HTMLElement = document.body;
 
-    constructor(private timerSvc: TimerService) {
+    constructor(private timerSvc: TimerService, private scrambleSvc: ScrambleService, private wakelockSvc: WakeLockService) {
         // load settings from local db or localstorage
         this.theme = this.load<Theme>('thm', 'auto');
         this.scrambleLength = this.load<number>('scr', 20);
         this.hideWhileTiming = this.load<boolean>('hid', false);
         this.showPreviousTimes = this.load<boolean>('shw', true);
         this.times = this.load<Array<number>>('tim', []);
-
-        // detect wakelock support
-        this.intializeWakeLock();
 
         this.init();
     }
@@ -74,7 +80,7 @@ export class AppComponent {
 
     init() {
         // generate initial scramble
-        this.generateScramble();
+        this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
 
         // generate initial stats
         this.updateStats();
@@ -180,7 +186,7 @@ export class AppComponent {
 
             case TimerState.Staged:
                 if (!this.pressed) {
-                    this.requestWakeLock();
+                    this.wakelockSvc.requestWakeLock();
                     this.timerSvc.restart();
                     this.state = TimerState.Timing;
                 }
@@ -189,9 +195,9 @@ export class AppComponent {
             case TimerState.Timing:
                 if (this.pressed) {
                     this.timerSvc.stop();
-                    this.generateScramble();
+                    this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
                     this.updateStats(this.solvingTime);
-                    this.releaseWakeLock();
+                    this.wakelockSvc.releaseWakeLock();
                     this.state = TimerState.Timed;
                 }
                 break;
@@ -201,24 +207,6 @@ export class AppComponent {
                 break;
         }
 
-    }
-
-    generateScramble() {
-        const dir: string[] = ['u', 'd', 'l', 'r', 'f', 'b'],
-            scramble: string[] = [];
-
-        let prv = '';
-
-        while (scramble.length < this.scrambleLength) {
-            const cur = dir[(Math.random() * 6) | 0];
-            if (cur == prv) continue;
-            const double = Math.random() < 0.3;
-            const prime = double ? false : Math.random() < 0.5;
-            scramble.push(`${cur}${double ? 2 : ''}${prime ? "'" : ""}`);
-            prv = cur;
-        }
-
-        this.scramble = scramble.join(' ');
     }
 
     updateStats(newTime?: number) {
@@ -250,32 +238,6 @@ export class AppComponent {
         return this.times.length > this.last.length;
     }
 
-    intializeWakeLock() {
-        this.supportsWakelock = ('wakeLock' in navigator);
-
-        if (this.supportsWakelock) {
-            document.addEventListener('visibilitychange', async () => {
-                if (this.wakelock !== undefined && document.visibilityState === 'visible')
-                    this.requestWakeLock();
-            });
-        }
-    }
-
-    async requestWakeLock() {
-        if (!this.supportsWakelock) return;
-
-        try {
-            this.wakelock = await navigator.wakeLock.request('screen');
-        }
-        catch { }
-    }
-
-    async releaseWakeLock() {
-        if (!this.supportsWakelock || this.wakelock === undefined) return;
-        await this.wakelock.release();
-        this.wakelock = undefined;
-    }
-
     showSettings() {
         this.settings.load({
             theme: this.theme,
@@ -292,14 +254,12 @@ export class AppComponent {
                 this.clearStats();
                 break;
             case 'save':
-                // todo: get settings, update them and save
+                // get updated settings and save them
                 const settings = this.settings.save();
-
                 this.updateTheme(settings.theme);
                 this.updateScrambleLength(settings.scrambleLength);
                 this.updateHideWhileTiming(settings.hideWhileTiming);
                 this.updateShowPreviousTimes(settings.showPreviousTimes);
-
                 break;
         }
     }
@@ -314,7 +274,7 @@ export class AppComponent {
     updateScrambleLength(scrambleLength: number) {
         if (scrambleLength !== this.scrambleLength) {
             this.scrambleLength = scrambleLength;
-            this.generateScramble();
+            this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
             this.save<number>('sln', this.scrambleLength);
         }
     }
