@@ -142,8 +142,7 @@ export class AppComponent {
     save<T>(key: string, value: T) {
         localStorage.setItem(`cubetimer.${key}`, JSON.stringify(value));
     }
-
-
+    
     toggleFullscreen(event: MouseEvent) {
         // stop event propagation and prevent element from being selected afterwards
         event.stopImmediatePropagation();
