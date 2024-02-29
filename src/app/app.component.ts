@@ -288,7 +288,7 @@ export class AppComponent {
     handleAction(action: string) {
         console.log('handle action', action);
         switch (action) {
-            case 'delete':
+            case 'clear':
                 this.clearStats();
                 break;
             case 'save':
