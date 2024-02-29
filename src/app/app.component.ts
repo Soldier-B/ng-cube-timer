@@ -5,6 +5,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ScrambleService } from './services/scramble.service';
 import { WakeLockService } from './services/wake-lock.service';
+import { StatsService } from './services/stats.service';
 
 enum TimerState {
     Waiting = 'waiting',
@@ -12,16 +13,6 @@ enum TimerState {
     Staged = 'staged',
     Timing = 'timing',
     Timed = 'timed'
-}
-
-enum MoveType {
-    Normal,
-    Prime,
-    Double
-}
-
-function randomInt(n: number): number {
-    return (Math.random() * n) | 0;
 }
 
 export type Theme = 'auto' | 'light' | 'dark';
@@ -63,7 +54,7 @@ export class AppComponent {
 
     body: HTMLElement = document.body;
 
-    constructor(private timerSvc: TimerService, private scrambleSvc: ScrambleService, private wakelockSvc: WakeLockService) {
+    constructor(private timerSvc: TimerService, private scrambleSvc: ScrambleService, private wakelockSvc: WakeLockService, private statsSvc: StatsService) {
         // load settings from local db or localstorage
         this.theme = this.load<Theme>('thm', 'auto');
         this.scrambleLength = this.load<number>('scr', 20);
@@ -217,9 +208,9 @@ export class AppComponent {
 
         const len = this.times.length;
 
-        this.best = len >= 1 ? Math.min(...this.times) : 0;
-        this.avg5 = len >= 5 ? this.averageOf(5) : 0;
-        this.avg12 = len >= 12 ? this.averageOf(12) : 0;
+        this.best = len >= 1 ? this.statsSvc.best(this.times) : 0;
+        this.avg5 = len >= 5 ? this.statsSvc.average(this.times.slice(-5)) : 0;
+        this.avg12 = len >= 12 ? this.statsSvc.average(this.times.slice(-12)) : 0;
 
         this.last = this.times.slice(-10);
     }
@@ -228,10 +219,6 @@ export class AppComponent {
         this.solvingTime = 0;
         this.times.length = 0;
         this.updateStats();
-    }
-
-    averageOf(times: number) {
-        return this.times.slice(-times).reduce((p, c) => p + c, 0) / times;
     }
 
     get hasMoreTimes(): boolean {
@@ -294,8 +281,6 @@ export class AppComponent {
     }
 
     cancelDialogs() {
-        for (const dialog of this.dialogs) {
-            dialog.hide('cancel');
-        }
+        for (const dialog of this.dialogs) dialog.hide('cancel');
     }
 }
