@@ -1,4 +1,4 @@
-import { Component, HostBinding, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostBinding, HostListener, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { TimerService } from './services/timer.service';
 import { StopwatchPipe } from './pipes/stopwatch.pipe';
 import { DialogComponent } from './components/dialog/dialog.component';
@@ -6,6 +6,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { ScrambleService } from './services/scramble.service';
 import { WakeLockService } from './services/wake-lock.service';
 import { StatsService } from './services/stats.service';
+import * as confetti from 'canvas-confetti';
 
 enum TimerState {
     Waiting = 'waiting',
@@ -18,7 +19,7 @@ enum TimerState {
 export type Theme = 'auto' | 'light' | 'dark';
 
 @Component({
-    selector: 'app-root',
+    selector: 'body',
     standalone: true,
     imports: [StopwatchPipe, DialogComponent, SettingsComponent],
     templateUrl: './app.component.html',
@@ -52,9 +53,16 @@ export class AppComponent {
     last: number[] = [];
     pointer?: number;
 
-    body: HTMLElement = document.body;
+    kc: Array<number> = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+    ci: number = 0;
+    ce: boolean = false;
 
-    constructor(private timerSvc: TimerService, private scrambleSvc: ScrambleService, private wakelockSvc: WakeLockService, private statsSvc: StatsService) {
+    constructor(
+        private timerSvc: TimerService,
+        private scrambleSvc: ScrambleService,
+        private wakelockSvc: WakeLockService,
+        private statsSvc: StatsService,
+        private elRef: ElementRef) {
         // load settings from local db or localstorage
         this.theme = this.load<Theme>('thm', 'auto');
         this.scrambleLength = this.load<number>('scr', 20);
@@ -78,33 +86,26 @@ export class AppComponent {
 
         // wire up key handlers
         window.onkeydown = window.onkeyup = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') return this.cancelDialogs();
-            if (e.key !== ' ') return;
-            this.setPressed(e.type === 'keydown');
-            e.preventDefault();
-        };
-
-        this.body.onpointerdown = this.body.onpointerup = (e) => {
-            if ((e.target as HTMLElement).tagName === 'BUTTON') return;
-
-            let handled = true;
-
-            if (e.type === 'pointerdown' && this.pointer === undefined) {
-                this.pointer = e.pointerId;
-                this.setPressed(true);
-                handled = true;
+            switch (e.key) {
+                case 'Escape':
+                    this.cancelDialogs();
+                    break;
+                case ' ':
+                    this.setPressed(e.type === 'keydown');
+                    e.preventDefault();
+                    break
+                default:
+                    if (e.type === 'keyup') return;
+                    if (e.keyCode === this.kc[this.ci]) {
+                        if (++this.ci === this.kc.length) {
+                            this.celebrate(false);
+                            this.ci = 0;
+                            this.ce = !this.ce;
+                        }
+                    }
+                    else
+                        this.ci = 0
             }
-            else if (e.type === 'pointerup' && this.pointer === e.pointerId) {
-                this.pointer = undefined;
-                this.setPressed(false);
-                handled = true;
-
-            }
-
-            if (!handled) return;
-
-            e.stopImmediatePropagation();
-            e.preventDefault();
         };
 
         document.onfullscreenchange = (e) => {
@@ -142,7 +143,7 @@ export class AppComponent {
     save<T>(key: string, value: T) {
         localStorage.setItem(`cubetimer.${key}`, JSON.stringify(value));
     }
-    
+
     toggleFullscreen(event: MouseEvent) {
         // stop event propagation and prevent element from being selected afterwards
         event.stopImmediatePropagation();
@@ -151,7 +152,7 @@ export class AppComponent {
         if (this.fullscreen)
             document.exitFullscreen();
         else
-            this.body.requestFullscreen();
+            this.elRef.nativeElement.requestFullscreen();
     }
 
     setPressed(pressed: boolean) {
@@ -200,8 +201,11 @@ export class AppComponent {
     }
 
     updateStats(newTime?: number) {
-        if (newTime !== undefined)
+        if (newTime !== undefined) {
+            if (this.times.length > 0 && newTime < this.best && this.ce)
+                this.celebrate(true);
             this.times.push(newTime);
+        }
 
         this.save<Array<number>>('tim', this.times);
 
@@ -282,4 +286,56 @@ export class AppComponent {
     cancelDialogs() {
         for (const dialog of this.dialogs) dialog.hide('cancel');
     }
+
+    celebrate(newBest: boolean) {
+        if (newBest) {
+            for (var i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    confetti.default({
+                        spread: 360,
+                        ticks: 50,
+                        gravity: 0,
+                        decay: 0.94,
+                        startVelocity: 30,
+                        colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
+                        particleCount: 40,
+                        scalar: 1.2,
+                        shapes: ['star']
+                    })
+                }, i * 150);
+            }
+        }
+        else {
+            confetti.default({
+                particleCount: 100,
+                spread: 160,
+                origin: { y: 0.6 }
+            });
+        }
+    }
+
+    @HostListener('pointerdown', ['$event'])
+    @HostListener('pointerup', ['$event'])
+    onPointer(e: PointerEvent) {
+        if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+
+        let handled = true;
+
+        if (e.type === 'pointerdown' && this.pointer === undefined) {
+            this.pointer = e.pointerId;
+            this.setPressed(true);
+            handled = true;
+        }
+        else if (e.type === 'pointerup' && this.pointer === e.pointerId) {
+            this.pointer = undefined;
+            this.setPressed(false);
+            handled = true;
+        }
+
+        if (!handled) return;
+
+        e.stopImmediatePropagation();
+        e.preventDefault();
+    };
+
 }
