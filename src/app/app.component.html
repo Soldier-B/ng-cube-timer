@@ -26,7 +26,7 @@
     </div>
 </main>
 
-<aside class="scramble">{{ scramble }}</aside>
+<aside class="scramble" (click)="generateScramble()">{{ scramble }}</aside>
 
 @if(showPreviousTimes){
 <aside class="timelist" [class.more]="hasMoreTimes">

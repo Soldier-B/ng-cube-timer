@@ -38,7 +38,7 @@
 	background: var(--background);
 	color: var(--foreground);
 
-	&::backdrop{
+	&::backdrop {
 		background: var(--background);
 	}
 
@@ -154,6 +154,7 @@
 	font-size: 3vmin;
 	opacity: 0.4;
 	text-transform: uppercase;
+	cursor: pointer;
 }
 
 /* time list */

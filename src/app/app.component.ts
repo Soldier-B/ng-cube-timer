@@ -79,7 +79,7 @@ export class AppComponent {
 
     init() {
         // generate initial scramble
-        this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
+        this.generateScramble();
 
         // generate initial stats
         this.updateStats();
@@ -186,7 +186,7 @@ export class AppComponent {
             case TimerState.Timing:
                 if (this.pressed) {
                     this.timerSvc.stop();
-                    this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
+                    this.generateScramble();
                     this.updateStats(this.solvingTime);
                     this.wakelockSvc.releaseWakeLock();
                     this.state = TimerState.Timed;
@@ -254,6 +254,10 @@ export class AppComponent {
         }
     }
 
+    generateScramble() {
+        this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
+    }
+
     updateTheme(theme: Theme) {
         if (theme !== this.theme) {
             this.theme = theme;
@@ -264,7 +268,7 @@ export class AppComponent {
     updateScrambleLength(scrambleLength: number) {
         if (scrambleLength !== this.scrambleLength) {
             this.scrambleLength = scrambleLength;
-            this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
+            this.generateScramble();
             this.save<number>('sln', this.scrambleLength);
         }
     }
@@ -317,7 +321,9 @@ export class AppComponent {
     @HostListener('pointerdown', ['$event'])
     @HostListener('pointerup', ['$event'])
     onPointer(e: PointerEvent) {
-        if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'BUTTON'
+            || (target.tagName === 'ASIDE' && target.classList.contains('scramble'))) return;
 
         let handled = true;
 
