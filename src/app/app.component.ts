@@ -45,6 +45,8 @@ export class AppComponent {
     pressed: boolean = false;
     fullscreen: boolean = false;
     best: number = 0;
+    worst: number = 0;
+    wca5: number = 0;
     avg5: number = 0;
     avg12: number = 0;
     stagingTime: number = 0;
@@ -212,7 +214,9 @@ export class AppComponent {
         const len = this.times.length;
 
         this.best = len >= 1 ? this.statsSvc.best(this.times) : 0;
+        this.worst = len >= 1 ? this.statsSvc.worst(this.times) : 0;
         this.avg5 = len >= 5 ? this.statsSvc.average(this.times.slice(-5)) : 0;
+        this.wca5 = len >= 5 ? this.statsSvc.wcaAverage(this.times.slice(-5)) : 0;
         this.avg12 = len >= 12 ? this.statsSvc.average(this.times.slice(-12)) : 0;
 
         this.last = this.times.slice(-10);
