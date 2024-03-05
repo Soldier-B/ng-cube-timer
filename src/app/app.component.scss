@@ -188,19 +188,21 @@
 	bottom: 0;
 	margin-bottom: 3vmin;
 	font-size: 3vmin;
-	display: flex;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 3vmin;
 
 	&>div {
 		display: flex;
 		align-items: center;
 	}
 
-	&>div+div {
-		margin-left: 3vmin;
-	}
-
 	& dt {
 		opacity: 0.4;
 		text-transform: uppercase;
+	}
+
+	& dl {
+		margin: 0;
 	}
 }
