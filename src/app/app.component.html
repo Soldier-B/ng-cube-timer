@@ -12,8 +12,7 @@
     </button>
     <button title="Toggle fullscreen" tabindex="-1" (click)="toggleFullscreen($event)" [class.active]="fullscreen">
         <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 -960 960 960" width="32">
-            <use [attr.href]="'assets/icons.svg#fullscreen_' + (fullscreen ? 'off' : 'on')"
-                href="assets/icons.svg#fullscreen_on"></use>
+            <use [attr.href]="'assets/icons.svg#fullscreen_' + (fullscreen ? 'off' : 'on')"></use>
         </svg>
     </button>
 </header>
@@ -51,6 +50,14 @@
         <dt>avg12&nbsp;</dt>
         <dl>{{ avg12 | stopwatch }}</dl>
     </div>
+    <!-- <div>
+        <dt>worst&nbsp;</dt>
+        <dl>{{ worst | stopwatch }}</dl>
+    </div>
+    <div>
+        <dt>wca5&nbsp;</dt>
+        <dl>{{ wca5 | stopwatch }}</dl>
+    </div> -->
 </footer>
 
 <app-dialog #clearDialog (onAction)="handleAction($event)">

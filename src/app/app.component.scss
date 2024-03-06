@@ -42,9 +42,18 @@
 		background: var(--background);
 	}
 
-	&:not(.loading) {
-		/* transition: background-color 200ms ease-in-out, color 200ms ease-in-out; */
-		/* transition: background-color 200ms ease-in-out, color 200ms ease-in-out, border-color 200ms ease-in-out; */
+	& svg {
+		fill: currentColor;
+		pointer-events: none;
+	}
+
+	@media(hover:none) {
+		& {
+			user-select: none;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+		}
 	}
 }
 
@@ -76,10 +85,17 @@
 		&.active {
 			opacity: 1;
 		}
+	}
+}
 
-		svg {
-			fill: currentColor;
-			pointer-events: none;
+
+:host>.push-button {
+	margin-bottom: 3vmin;
+	color: var(--foreground);
+
+	@media(hover:hover) {
+		& {
+			display: none;
 		}
 	}
 }

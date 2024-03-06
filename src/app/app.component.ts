@@ -157,6 +157,12 @@ export class AppComponent {
             this.elRef.nativeElement.requestFullscreen();
     }
 
+    cancelPress(){
+        this.timerSvc.stop();
+        this.state = TimerState.Waiting;
+        //this.pressed = false;
+    }
+
     setPressed(pressed: boolean) {
         this.pressed = pressed;
 
@@ -323,6 +329,7 @@ export class AppComponent {
     }
 
     @HostListener('pointerdown', ['$event'])
+    @HostListener('pointercancel', ['$event'])
     @HostListener('pointerup', ['$event'])
     onPointer(e: PointerEvent) {
         const target = e.target as HTMLElement;
@@ -336,6 +343,11 @@ export class AppComponent {
             this.setPressed(true);
             handled = true;
         }
+        else if (e.type === 'pointercancel' && this.pointer === e.pointerId) {
+            this.cancelPress();
+            this.pointer = undefined;
+            handled = true;
+        }
         else if (e.type === 'pointerup' && this.pointer === e.pointerId) {
             this.pointer = undefined;
             this.setPressed(false);
@@ -347,5 +359,10 @@ export class AppComponent {
         e.stopImmediatePropagation();
         e.preventDefault();
     };
+
+    @HostListener('contextmenu', ['$event'])
+    onContextMenu(e: Event) {
+        e.preventDefault();
+    }
 
 }
