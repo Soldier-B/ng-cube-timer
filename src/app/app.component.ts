@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, HostListener, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostBinding, HostListener, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { TimerService } from './services/timer.service';
 import { StopwatchPipe } from './pipes/stopwatch.pipe';
 import { DialogComponent } from './components/dialog/dialog.component';
@@ -7,6 +7,7 @@ import { ScrambleService } from './services/scramble.service';
 import { WakeLockService } from './services/wake-lock.service';
 import { StatsService } from './services/stats.service';
 import * as confetti from 'canvas-confetti';
+import { randomScrambleForEvent } from 'cubing/scramble';
 
 enum TimerState {
     Waiting = 'waiting',
@@ -63,7 +64,8 @@ export class AppComponent {
         private scrambleSvc: ScrambleService,
         private wakelockSvc: WakeLockService,
         private statsSvc: StatsService,
-        private elRef: ElementRef) {
+        private elRef: ElementRef,
+        private cdr: ChangeDetectorRef) {
         // load settings from local db or localstorage
         this.theme = this.load<Theme>('thm', 'auto');
         this.scrambleLength = this.load<number>('scr', 20);
@@ -85,34 +87,6 @@ export class AppComponent {
         // generate initial stats
         this.updateStats();
 
-        // wire up key handlers
-        window.onkeydown = window.onkeyup = (e: KeyboardEvent) => {
-            switch (e.key) {
-                case 'Escape':
-                    this.cancelDialogs();
-                    break;
-                case ' ':
-                    this.setPressed(e.type === 'keydown');
-                    e.preventDefault();
-                    break
-                default:
-                    if (e.type === 'keyup') return;
-                    if (e.keyCode === this.kc[this.ci]) {
-                        if (++this.ci === this.kc.length) {
-                            this.celebrate(false);
-                            this.ci = 0;
-                            this.ce = !this.ce;
-                        }
-                    }
-                    else
-                        this.ci = 0
-            }
-        };
-
-        document.onfullscreenchange = (e) => {
-            this.fullscreen = !!document.fullscreenElement;
-        }
-
         this.timerSvc.elapsedChanged.subscribe((elapsed) => {
             switch (this.state) {
                 case TimerState.Staging:
@@ -125,6 +99,7 @@ export class AppComponent {
                     this.solvingTime = elapsed;
                     break;
             }
+            this.cdr.markForCheck();
         });
     }
 
@@ -156,7 +131,7 @@ export class AppComponent {
             this.elRef.nativeElement.requestFullscreen();
     }
 
-    cancelPress(){
+    cancelPress() {
         this.timerSvc.stop();
         this.state = TimerState.Waiting;
         //this.pressed = false;
@@ -263,8 +238,10 @@ export class AppComponent {
         }
     }
 
-    generateScramble() {
-        this.scramble = this.scrambleSvc.getScramble(this.scrambleLength);
+    async generateScramble() {
+        var scramble = await randomScrambleForEvent('333');
+        this.scramble = scramble.toString();
+        this.cdr.markForCheck();
     }
 
     updateTheme(theme: Theme) {
@@ -325,6 +302,36 @@ export class AppComponent {
                 origin: { y: 0.6 }
             });
         }
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    @HostListener('window:keyup', ['$event'])
+    onKey(e: KeyboardEvent) {
+        switch (e.key) {
+            case 'Escape':
+                this.cancelDialogs();
+                break;
+            case ' ':
+                this.setPressed(e.type === 'keydown');
+                e.preventDefault();
+                break;
+            default:
+                if (e.type === 'keyup') return;
+                if (e.keyCode === this.kc[this.ci]) {
+                    if (++this.ci === this.kc.length) {
+                        this.celebrate(false);
+                        this.ci = 0;
+                        this.ce = !this.ce;
+                    }
+                }
+                else
+                    this.ci = 0;
+        }
+    }
+
+    @HostListener('document:fullscreenchange')
+    onFullscreenChange() {
+        this.fullscreen = !!document.fullscreenElement;
     }
 
     @HostListener('pointerdown', ['$event'])
