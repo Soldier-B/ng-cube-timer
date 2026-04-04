@@ -5,7 +5,6 @@ import { Theme } from '../../app.component';
 
 @Component({
     selector: 'app-settings',
-    standalone: true,
     imports: [FormsModule, FixedlenPipe],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss'

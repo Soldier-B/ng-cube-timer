@@ -3,7 +3,6 @@ import { Component, ContentChild, ElementRef, EventEmitter, HostBinding, Output,
 
 @Component({
     selector: 'app-dialog',
-    standalone: true,
     imports: [NgTemplateOutlet],
     templateUrl: './dialog.component.html',
     styleUrl: './dialog.component.scss'

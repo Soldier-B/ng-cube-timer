@@ -20,7 +20,6 @@ export type Theme = 'auto' | 'light' | 'dark';
 
 @Component({
     selector: 'body',
-    standalone: true,
     imports: [StopwatchPipe, DialogComponent, SettingsComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
