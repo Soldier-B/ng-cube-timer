@@ -10,7 +10,7 @@ import { Component, ContentChild, ElementRef, EventEmitter, HostBinding, Output,
 export class DialogComponent {
     @ContentChild('dialogContent') content!: TemplateRef<any>;
     @ContentChild('dialogButtons') buttons!: TemplateRef<any>;
-    @HostBinding('class.shown') private shown: boolean = false;
+    @HostBinding('class.shown') protected shown: boolean = false;
     @Output() onAction = new EventEmitter<string>();
     @Output() onShow = new EventEmitter<void>();
 
