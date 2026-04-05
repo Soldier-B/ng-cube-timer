@@ -11,13 +11,11 @@ import { Theme } from '../../app.component';
 })
 export class SettingsComponent {
     theme: Theme = 'auto';
-    scrambleLength: number = 20;
     hideWhileTiming: boolean = false;
     showPreviousTimes: boolean = true;
 
     load(settings: ISettings) {
         this.theme = settings.theme;
-        this.scrambleLength = settings.scrambleLength;
         this.hideWhileTiming = settings.hideWhileTiming;
         this.showPreviousTimes = settings.showPreviousTimes;
     }
@@ -25,7 +23,6 @@ export class SettingsComponent {
     save(): ISettings {
         return {
             theme: this.theme,
-            scrambleLength: this.scrambleLength,
             hideWhileTiming: this.hideWhileTiming,
             showPreviousTimes: this.showPreviousTimes
         };
@@ -35,7 +32,6 @@ export class SettingsComponent {
 
 export interface ISettings {
     theme: Theme;
-    scrambleLength: number;
     hideWhileTiming: boolean;
     showPreviousTimes: boolean;
 }

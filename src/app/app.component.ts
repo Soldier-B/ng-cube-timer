@@ -35,7 +35,6 @@ export class AppComponent {
 
     // settings
     @HostBinding('class') theme: Theme = 'auto';
-    scrambleLength: number = 25;
     hideWhileTiming: boolean = false;
     showPreviousTimes: boolean = false;
 
@@ -68,7 +67,6 @@ export class AppComponent {
         private cdr: ChangeDetectorRef) {
         // load settings from local db or localstorage
         this.theme = this.load<Theme>('thm', 'auto');
-        this.scrambleLength = this.load<number>('scr', 20);
         this.hideWhileTiming = this.load<boolean>('hid', false);
         this.showPreviousTimes = this.load<boolean>('shw', true);
         this.times = this.load<Array<number>>('tim', []);
@@ -215,7 +213,6 @@ export class AppComponent {
     showSettings() {
         this.settings.load({
             theme: this.theme,
-            scrambleLength: this.scrambleLength,
             hideWhileTiming: this.hideWhileTiming,
             showPreviousTimes: this.showPreviousTimes
         });
@@ -231,7 +228,6 @@ export class AppComponent {
                 // get updated settings and save them
                 const settings = this.settings.save();
                 this.updateTheme(settings.theme);
-                this.updateScrambleLength(settings.scrambleLength);
                 this.updateHideWhileTiming(settings.hideWhileTiming);
                 this.updateShowPreviousTimes(settings.showPreviousTimes);
                 break;
@@ -248,14 +244,6 @@ export class AppComponent {
         if (theme !== this.theme) {
             this.theme = theme;
             this.save<Theme>('thm', this.theme);
-        }
-    }
-
-    updateScrambleLength(scrambleLength: number) {
-        if (scrambleLength !== this.scrambleLength) {
-            this.scrambleLength = scrambleLength;
-            this.generateScramble();
-            this.save<number>('sln', this.scrambleLength);
         }
     }
 
