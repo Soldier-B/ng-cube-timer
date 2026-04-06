@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FixedlenPipe } from '../../pipes/fixedlen.pipe';
 import { Theme } from '../../app.component';
 
 @Component({
     selector: 'app-settings',
-    imports: [FormsModule, FixedlenPipe],
+    imports: [FormsModule],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss'
 })
